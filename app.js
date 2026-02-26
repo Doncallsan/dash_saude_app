@@ -459,7 +459,9 @@ dayModal.addEventListener("click", (e)=>{
 });
 
 btnSaveModalWeight.addEventListener("click", ()=>{
-  if(!modalDate) return;
+  const date = modalDate || toISODate(new Date());
+    ensureDay(date);
+    //
   ensureDay(modalDate);
   setWeight(modalDate, modalWeightInput.value);
   saveState();
@@ -479,10 +481,10 @@ actionModal.querySelectorAll("[data-add]").forEach(btn=>{
     if(!modalDate) return;
     ensureDay(modalDate);
     const t = btn.dataset.add;
-    if(t==="comida_boa") addAction({date:modalDate, tipo:"comida_boa", pontos:1});
-    if(t==="atividade") addAction({date:modalDate, tipo:"atividade", pontos:1});
-    if(t==="junk") addAction({date:modalDate, tipo:"junk", pontos:-2});
-    if(t==="agua_250") addWater(modalDate, 250);
+    if(t==="comida_boa") addAction({date, tipo:"comida_boa", pontos:1});
+    if(t==="atividade") addAction({date, tipo:"atividade", pontos:1});
+    if(t==="junk") addAction({date, tipo:"junk", pontos:-2});
+    if(t==="agua_250") addWater(date, 250);
     saveState();
     actionModal.classList.add("hidden");
     renderModalDay();
