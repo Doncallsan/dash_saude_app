@@ -8,6 +8,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="app.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -226,7 +227,20 @@
       </div>
     </div>
   </div>
-
-  <script src="app.js"></script>
+  <script>
+    // Boot check (debug)
+    setTimeout(()=>{
+      if(!window.__DS_BOOTED){
+        const el=document.createElement("div");
+        el.style.position="fixed"; el.style.left="12px"; el.style.right="12px"; el.style.bottom="92px";
+        el.style.padding="12px"; el.style.borderRadius="14px";
+        el.style.background="#fff"; el.style.border="1px solid #E2E8F0";
+        el.style.boxShadow="0 10px 30px rgba(15,23,42,.12)";
+        el.style.fontWeight="800";
+        el.textContent="Erro: o JavaScript não carregou. Refaça o deploy e limpe o cache.";
+        document.body.appendChild(el);
+      }
+    }, 1200);
+  </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+window.__DS_BOOTED = true;
 // Dash Saúde - PWA local (sem backend)
 // Regras: comida boa +1 por ocorrência; atividade +1; junk -2 por ocorrência; água bônus +2 ao bater meta 1x/dia; meta pontos padrão 6 editável; undo última ação.
 
