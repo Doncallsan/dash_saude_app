@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Dash Saúde</title>
+  <meta name="theme-color" content="#E9F5EF" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">💧</div>
+      <div>
+        <div class="title">Dash Saúde</div>
+        <div class="subtitle" id="subtitleDate">Hoje</div>
+      </div>
+    </div>
+    <button class="ghost" id="btnBackup" title="Exportar/Importar">Backup</button>
+  </header>
+
+  <main class="container">
+    <!-- HOJE -->
+    <section class="screen" id="screenHoje" aria-label="Hoje">
+      <div class="card">
+        <div class="cardTitle">Hoje</div>
+        <div class="row between">
+          <div>
+            <div class="big" id="scoreText">0 / 6</div>
+            <div class="muted" id="scoreHint">Meta de pontos</div>
+          </div>
+          <div class="pill" id="statusPill">Vermelho</div>
+        </div>
+        <div class="bar"><div class="barFill" id="scoreBar"></div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="cardTitle">Água</div>
+          <div class="big" id="waterText">0 / 2000 ml</div>
+          <div class="miniRow">
+            <button class="btn" data-water="200">+200</button>
+            <button class="btn" data-water="300">+300</button>
+            <button class="btn" data-water="500">+500</button>
+          </div>
+          <div class="muted" id="waterBonusHint">Bônus: +2 ao bater a meta 1x/dia</div>
+        </div>
+
+        <div class="card">
+          <div class="cardTitle">Peso</div>
+          <div class="row">
+            <input class="input" id="weightInput" inputmode="decimal" placeholder="ex: 98,5" />
+            <button class="btn primary" id="btnSaveWeight">Salvar</button>
+          </div>
+          <div class="muted">Opcional. Ajuda no gráfico.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle">Ações rápidas</div>
+        <div class="grid2">
+          <button class="btn bigBtn" id="btnGood">+ Comida boa <span class="tag">+1</span></button>
+          <button class="btn bigBtn" id="btnAct">+ Atividade <span class="tag">+1</span></button>
+          <button class="btn bigBtn danger" id="btnJunk">+ Junk <span class="tag">-2</span></button>
+          <button class="btn bigBtn" id="btnUndo">Desfazer última</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row between">
+          <div class="cardTitle">Ações de hoje</div>
+          <button class="ghost" id="btnClearToday" title="Limpar ações de hoje (não recomendado)">Limpar</button>
+        </div>
+        <div id="todayActions" class="list"></div>
+        <div class="muted" id="todayEmpty">Sem ações ainda.</div>
+      </div>
+    </section>
+
+    <!-- PROGRESSO -->
+    <section class="screen hidden" id="screenProgresso" aria-label="Progresso">
+      <div class="card">
+        <div class="row between">
+          <div class="cardTitle">Progresso</div>
+          <div class="seg">
+            <button class="segBtn active" data-range="7">7d</button>
+            <button class="segBtn" data-range="30">30d</button>
+          </div>
+        </div>
+        <div class="kpiRow">
+          <div class="kpi">
+            <div class="kpiLabel">Dias verdes</div>
+            <div class="kpiValue" id="kpiGreen">0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpiLabel">Média pontos</div>
+            <div class="kpiValue" id="kpiAvg">0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpiLabel">Junk (ocorr.)</div>
+            <div class="kpiValue" id="kpiJunk">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle">Pontos por dia</div>
+        <canvas id="chartScore" height="140"></canvas>
+        <div class="muted">Linha cinza = meta diária.</div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle">Peso (se registrar)</div>
+        <canvas id="chartWeight" height="140"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle">Resumo (cores)</div>
+        <div id="summaryChips" class="chips"></div>
+      </div>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section class="screen hidden" id="screenHistorico" aria-label="Histórico">
+      <div class="card">
+        <div class="row between">
+          <div class="cardTitle">Histórico</div>
+          <button class="ghost" id="btnSeed">Gerar 14 dias (teste)</button>
+        </div>
+        <div id="historyList" class="list"></div>
+        <div class="muted">Toque em um dia para ver detalhes e editar.</div>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
+    <section class="screen hidden" id="screenConfig" aria-label="Configurações">
+      <div class="card">
+        <div class="cardTitle">Configurações</div>
+        <label class="field">
+          <span>Meta de pontos (padrão 6)</span>
+          <input class="input" id="goalScoreInput" inputmode="numeric" />
+        </label>
+        <label class="field">
+          <span>Meta de água (ml)</span>
+          <input class="input" id="goalWaterInput" inputmode="numeric" />
+        </label>
+        <button class="btn primary" id="btnSaveConfig">Salvar</button>
+        <div class="muted">Sem conta, sem nuvem. Tudo fica só no seu celular.</div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle">Backup</div>
+        <div class="row wrap">
+          <button class="btn" id="btnExport">Exportar</button>
+          <label class="btn fileBtn">
+            Importar
+            <input type="file" id="importFile" accept="application/json" />
+          </label>
+          <button class="btn danger" id="btnReset">Zerar tudo</button>
+        </div>
+        <div class="muted">Exportar gera um arquivo .json (guarde no Drive/WhatsApp). Importar substitui tudo.</div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="Navegação">
+    <button class="tab active" data-screen="Hoje">Hoje</button>
+    <button class="tab" data-screen="Progresso">Progresso</button>
+    <button class="tab" data-screen="Historico">Histórico</button>
+    <button class="tab" data-screen="Config">Config</button>
+  </nav>
+
+  <!-- MODAL: detalhe do dia -->
+  <div class="modal hidden" id="dayModal" role="dialog" aria-modal="true">
+    <div class="modalCard">
+      <div class="row between">
+        <div>
+          <div class="cardTitle" id="modalTitle">Dia</div>
+          <div class="muted" id="modalSub"></div>
+        </div>
+        <button class="ghost" id="btnCloseModal">Fechar</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card soft">
+          <div class="muted">Pontos</div>
+          <div class="big" id="modalScore"></div>
+        </div>
+        <div class="card soft">
+          <div class="muted">Água</div>
+          <div class="big" id="modalWater"></div>
+        </div>
+      </div>
+
+      <div class="card soft">
+        <div class="row between">
+          <div class="cardTitle">Peso</div>
+          <button class="ghost" id="btnSaveModalWeight">Salvar</button>
+        </div>
+        <input class="input" id="modalWeightInput" inputmode="decimal" placeholder="ex: 98,5" />
+      </div>
+
+      <div class="card soft">
+        <div class="row between">
+          <div class="cardTitle">Ações</div>
+          <button class="ghost" id="btnAddActionModal">+ Adicionar</button>
+        </div>
+        <div id="modalActions" class="list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: adicionar ação -->
+  <div class="modal hidden" id="actionModal" role="dialog" aria-modal="true">
+    <div class="modalCard">
+      <div class="row between">
+        <div class="cardTitle">Adicionar ação</div>
+        <button class="ghost" id="btnCloseActionModal">Fechar</button>
+      </div>
+      <div class="grid2">
+        <button class="btn bigBtn" data-add="comida_boa">Comida boa (+1)</button>
+        <button class="btn bigBtn" data-add="atividade">Atividade (+1)</button>
+        <button class="btn bigBtn danger" data-add="junk">Junk (-2)</button>
+        <button class="btn bigBtn" data-add="agua_250">Água +250ml</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Boot check (debug)
+    setTimeout(()=>{
+      if(!window.__DS_BOOTED){
+        const el=document.createElement("div");
+        el.style.position="fixed"; el.style.left="12px"; el.style.right="12px"; el.style.bottom="92px";
+        el.style.padding="12px"; el.style.borderRadius="14px";
+        el.style.background="#fff"; el.style.border="1px solid #E2E8F0";
+        el.style.boxShadow="0 10px 30px rgba(15,23,42,.12)";
+        el.style.fontWeight="800";
+        el.textContent="Erro: o JavaScript não carregou. Refaça o deploy e limpe o cache.";
+        document.body.appendChild(el);
+      }
+    }, 1200);
+  </script>
+</body>
+</html>
